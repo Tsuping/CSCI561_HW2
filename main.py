@@ -1,6 +1,5 @@
 import os
 
-from numpy import delete
 
 
 input = "input.txt"
