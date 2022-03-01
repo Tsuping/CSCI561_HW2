@@ -3,7 +3,7 @@ import os
 
 
 input = "input.txt"
-
+print("Hello world")
 def read_input(file):
     Board_size = 5
     info = []
