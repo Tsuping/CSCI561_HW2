@@ -3,7 +3,7 @@ import os
 
 
 input = "input.txt"
-print("Hello world")
+
 def read_input(file):
     Board_size = 5
     info = []
@@ -20,7 +20,7 @@ def read_input(file):
     return player, prev_board, current_board
 
 player, prev_board, current_board = read_input(input)
-
+player = int(player)
 def write_output(output_file, move):
     with open(output_file, 'w') as F:
         F.write(move)
@@ -105,29 +105,8 @@ def delete_dead_tiles(board, player):
 file1 = open("output_maze.txt", "w")
 
 
-for i in range(len(current_board)):
-    string = []
-    for word in current_board[i]:
-        string.append(str(word))
-    string2 = " ".join(string)
-    file1.write(string2 + "\n")
 
-
-after_delete = delete_dead_tiles(current_board, int(player))
-print(after_delete)
-
-
-
-file1.write("after delete" + "\n")
-for i in range(len(after_delete)):
-    string = []
-    for word in after_delete[i]:
-        string.append(str(word))
-    string2 = " ".join(string)
-    file1.write(string2 + "\n")
-
-    
-
+print(find_dead_tile(current_board, player))
 
 
 
