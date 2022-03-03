@@ -1,3 +1,4 @@
+import copy
 import os
 
 
@@ -10,7 +11,7 @@ def read_input(file):
     with open(file) as F:
         for lines in F.readlines():
             info.append(lines.strip())
-    player = info[0]
+    player = int(info[0])
     prev_board = []
     current_board = []
     for i in range(1, Board_size + 1):
@@ -20,7 +21,7 @@ def read_input(file):
     return player, prev_board, current_board
 
 player, prev_board, current_board = read_input(input)
-player = int(player)
+
 def write_output(output_file, move):
     with open(output_file, 'w') as F:
         F.write(move)
@@ -100,13 +101,30 @@ def delete_dead_tiles(board, player):
     new_board = delete_tile(board, check)
     return new_board
 
+def good_move(curr_board, prev_board, player, i, j):
+    if curr_board[i][j] != 0:
+        return False
+    copy_board = copy.deepcopy(curr_board)
+    copy_board[i][j] = player
+    dead_anemy_tile = find_dead_tile(copy_board, 3 - player)
+    copy_board = delete_dead_tiles(copy_board, 3-player)
+    if find_liberty(copy_board, i, j) >= 1 and not (dead_anemy_tile and ko_rule(copy_board, prev_board)):
+        return True
 
 
-file1 = open("output_maze.txt", "w")
+def find_valid_move(curr_board, prev_board, player):
+    moves = []
+    for i in range(5):
+        for j in range(5):
+            if good_move(curr_board, prev_board, player, i, j):
+                moves.append((i, j))
+    return moves
+
+
+print(find_valid_move(current_board, prev_board, player))
 
 
 
-print(find_dead_tile(current_board, player))
 
 
 
