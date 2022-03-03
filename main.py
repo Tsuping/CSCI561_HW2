@@ -107,7 +107,7 @@ def good_move(curr_board, prev_board, player, i, j):
     copy_board = copy.deepcopy(curr_board)
     copy_board[i][j] = player
     dead_anemy_tile = find_dead_tile(copy_board, 3 - player)
-    copy_board = delete_dead_tiles(copy_board, 3-player)
+    copy_board = delete_dead_tiles(copy_board, 3 - player)
     if find_liberty(copy_board, i, j) >= 1 and not (dead_anemy_tile and ko_rule(copy_board, prev_board)):
         return True
 
