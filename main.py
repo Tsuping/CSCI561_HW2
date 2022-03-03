@@ -121,8 +121,6 @@ def find_valid_move(curr_board, prev_board, player):
     return moves
 
 
-print(find_valid_move(current_board, prev_board, player))
-
 
 
 
