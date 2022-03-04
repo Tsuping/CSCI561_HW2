@@ -140,11 +140,27 @@ def find_rewards(board, va):
     else:
         return -1 * value
 
+def iterate_branches(curr_board, prev_board, heuristic, depth, alpha, beta, next_player):
+    if depth == 0:
+        return heuristic
 
+    best = heuristic
+    copy_curr_board = copy.deepcopy(curr_board)
+    for move in find_valid_move(curr_board, prev_board, next_player):
+        next_state = copy.deepcopy(curr_board)
+        next_state[move[0]][move[1]] = next_player
+        next_state_delete = delete_dead_tiles(next_state, 3 - next_player)
 
+        estimate_next_player = find_rewards(next_state_delete, 3 - next_player)
 
+        dfs_search_branch = iterate_branches(next_state_delete, copy_curr_board, estimate_next_player, depth-1, alpha, beta, 3-next_player)
+        
+        
 
+    return best
 
+print("current_board: ", current_board)
+print(iterate_branches(current_board, prev_board, 12, 2, 1000, 1000, player))
 
 
 
