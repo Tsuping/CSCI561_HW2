@@ -3,6 +3,10 @@ import os
 
 input = "input.txt"
 
+
+def find_opponent(val):
+    return 3 - val
+
 def read_input(file):
     Board_size = 5
     info = []
@@ -104,8 +108,8 @@ def good_move(curr_board, prev_board, player, i, j):
         return False
     copy_board = copy.deepcopy(curr_board)
     copy_board[i][j] = player
-    dead_anemy_tile = find_dead_tile(copy_board, 3 - player)
-    copy_board = delete_dead_tiles(copy_board, 3 - player)
+    dead_anemy_tile = find_dead_tile(copy_board, find_opponent(player))
+    copy_board = delete_dead_tiles(copy_board, find_opponent)
     if find_liberty(copy_board, i, j) >= 1 and not (dead_anemy_tile and ko_rule(copy_board, prev_board)):
         return True
 
@@ -130,7 +134,7 @@ def find_rewards(board, va):
                 our_agent += 1
                 liberty_count = find_liberty(board, i, j)
                 our_agent_potential_reward = our_agent_potential_reward + our_agent + liberty_count
-            elif board[i][j] == 3 - player:
+            elif board[i][j] == find_opponent(player):
                 opponent_agent += 1
                 liberty_count = find_liberty(board, i, j)
                 opponent_agent_potnetial_reward = opponent_agent_potnetial_reward + opponent_agent + liberty_count
@@ -149,12 +153,12 @@ def iterate_branches(curr_board, prev_board, heuristic, depth, alpha, beta, next
     for move in find_valid_move(curr_board, prev_board, next_player):
         next_state = copy.deepcopy(curr_board)
         next_state[move[0]][move[1]] = next_player
-        next_state_delete = delete_dead_tiles(next_state, 3 - next_player)
+        next_state_delete = delete_dead_tiles(next_state, find_opponent(next_player))
 
-        estimate_next_player = find_rewards(next_state_delete, 3 - next_player)
+        estimate_next_player = find_rewards(next_state_delete, find_opponent(next_player))
 
         dfs_search_branch = iterate_branches(next_state_delete, copy_curr_board, estimate_next_player, depth-1, alpha, beta, 3-next_player)
-        
+        dfs_search_branch
         
 
     return best
