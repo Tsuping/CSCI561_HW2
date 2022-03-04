@@ -205,12 +205,14 @@ def minimax(curr_board, prev_board, depth, next_player, alpha, beta, isMax):
         for moves in all_moves:
             next_state = next_state_movement(curr_board, moves, next_player)
             value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), alpha, beta, False)
-            if maxval < value[0]:
+            if maxval < value[0] or not curr_ans:
                 maxval = value[0]
                 alpha = max(alpha, maxval)
                 if alpha > beta:
                     break
                 curr_ans = [moves]
+            elif maxval == value[0]:
+                curr_ans.append(moves)
         if curr_ans == None:
             return maxval, None
         return maxval, curr_ans
@@ -219,15 +221,16 @@ def minimax(curr_board, prev_board, depth, next_player, alpha, beta, isMax):
         current_board_copy = copy.deepcopy(curr_board)
         all_moves = find_valid_move(curr_board, prev_board, next_player)
         for moves in all_moves:
-
             next_state = next_state_movement(curr_board, moves, next_player)
             value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), alpha, beta, True)
-            if minval > value[0]:
+            if minval > value[0] or not curr_ans:
                 minval = value[0]
                 beta = min(beta, minval)
                 if alpha > beta:
                     break
                 curr_ans = [moves]
+            elif minval == value[0]:
+                curr_ans.append(moves)
         if curr_ans == None:
             return minval, None
         return minval, curr_ans
@@ -236,7 +239,7 @@ def minimax(curr_board, prev_board, depth, next_player, alpha, beta, isMax):
 
 
 start_time = time.time()
-print(minimax(current_board, prev_board, 2, player, -1000, 1000, True))
+print(minimax(current_board, prev_board, 4, player, -1000, 1000, True))
 print("--- %s seconds ---" % (time.time() - start_time))
 
     
