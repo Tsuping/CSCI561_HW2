@@ -1,5 +1,6 @@
 import copy
 import os
+import time
 
 input = "input.txt"
 
@@ -191,7 +192,7 @@ def max_part(curr_board, prev_board, depth, alpha, beta, next_player):
         
         
     
-def minimax(curr_board, prev_board, depth, next_player, isMax):
+def minimax(curr_board, prev_board, depth, next_player, alpha, beta, isMax):
     curr_ans = []
     heur = find_rewards(curr_board, next_player)
     if depth == 0:
@@ -203,10 +204,15 @@ def minimax(curr_board, prev_board, depth, next_player, isMax):
         all_moves = find_valid_move(curr_board, prev_board, next_player)
         for moves in all_moves:
             next_state = next_state_movement(curr_board, moves, next_player)
-            value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), False)
+            value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), alpha, beta, False)
             if maxval < value[0]:
                 maxval = value[0]
+                alpha = max(alpha, maxval)
+                if alpha > beta:
+                    break
                 curr_ans = [moves]
+        if curr_ans == None:
+            return maxval, None
         return maxval, curr_ans
     else:
         minval = float('inf')
@@ -215,14 +221,22 @@ def minimax(curr_board, prev_board, depth, next_player, isMax):
         for moves in all_moves:
 
             next_state = next_state_movement(curr_board, moves, next_player)
-            value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), True)
+            value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), alpha, beta, True)
             if minval > value[0]:
                 minval = value[0]
+                beta = min(beta, minval)
+                if alpha > beta:
+                    break
                 curr_ans = [moves]
+        if curr_ans == None:
+            return minval, None
         return minval, curr_ans
 
 
-print(minimax(current_board, prev_board, 3, player, True))
 
+
+start_time = time.time()
+print(minimax(current_board, prev_board, 2, player, -1000, 1000, True))
+print("--- %s seconds ---" % (time.time() - start_time))
 
     
