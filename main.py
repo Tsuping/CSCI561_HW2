@@ -163,4 +163,4 @@ print("current_board: ", current_board)
 print(iterate_branches(current_board, prev_board, 12, 2, 1000, 1000, player))
 
 
-
+print("testing")
