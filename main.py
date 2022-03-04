@@ -171,7 +171,7 @@ def min_part(curr_board, prev_board, depth, alpha, beta, next_player):
     for moves in find_valid_move(curr_board, prev_board, next_player):
         next_state_board = next_state_movement(curr_board, moves, next_player)
         current_value = max_part(next_state_board, curr_board_copy, depth - 1, alpha, beta, next_player)
-
+        
 
     return heuristic_value
 
@@ -188,9 +188,41 @@ def max_part(curr_board, prev_board, depth, alpha, beta, next_player):
     return heuristic_value
 
 
-
         
         
     
+def minimax(curr_board, prev_board, depth, next_player, isMax):
+    curr_ans = []
+    heur = find_rewards(curr_board, next_player)
+    if depth == 0:
+        return heur, None
+
+    if isMax:
+        maxval = float("-inf")
+        current_board_copy = copy.deepcopy(curr_board)
+        all_moves = find_valid_move(curr_board, prev_board, next_player)
+        for moves in all_moves:
+            next_state = next_state_movement(curr_board, moves, next_player)
+            value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), False)
+            if maxval < value[0]:
+                maxval = value[0]
+                curr_ans = [moves]
+        return maxval, curr_ans
+    else:
+        minval = float('inf')
+        current_board_copy = copy.deepcopy(curr_board)
+        all_moves = find_valid_move(curr_board, prev_board, next_player)
+        for moves in all_moves:
+
+            next_state = next_state_movement(curr_board, moves, next_player)
+            value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), True)
+            if minval > value[0]:
+                minval = value[0]
+                curr_ans = [moves]
+        return minval, curr_ans
+
+
+print(minimax(current_board, prev_board, 3, player, True))
+
 
     
