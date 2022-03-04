@@ -122,6 +122,11 @@ def find_valid_move(curr_board, prev_board, player):
                 moves.append((i, j))
     return moves
 
+def next_state_movement(board, position, player):
+    new_board = copy.deepcopy(board)
+    new_board[position[0]][position[1]] = player
+    new_board = delete_dead_tiles(new_board, find_opponent(player))
+    return new_board
 
 def find_rewards(board, va):
     our_agent = 0
@@ -144,27 +149,48 @@ def find_rewards(board, va):
     else:
         return -1 * value
 
-def iterate_branches(curr_board, prev_board, heuristic, depth, alpha, beta, next_player):
+def Minmax(curr_board, prev_board, depth, alpha, beta, next_player):
     if depth == 0:
-        return heuristic
+        return 
+    suggest_moves = []
+    highest_score = 0
+    current_board_copy = copy.deepcopy(curr_board)
+    for moves in find_valid_move(curr_board, prev_board, next_player):
+        next_state_board = next_state_movement(curr_board, moves, next_player)
+        dfs_search_min = min_part(next_state_board, current_board_copy, depth-1, alpha, beta, find_opponent(next_player))
 
-    best = heuristic
-    copy_curr_board = copy.deepcopy(curr_board)
-    for move in find_valid_move(curr_board, prev_board, next_player):
-        next_state = copy.deepcopy(curr_board)
-        next_state[move[0]][move[1]] = next_player
-        next_state_delete = delete_dead_tiles(next_state, find_opponent(next_player))
+    return suggest_moves
+    
 
-        estimate_next_player = find_rewards(next_state_delete, find_opponent(next_player))
 
-        dfs_search_branch = iterate_branches(next_state_delete, copy_curr_board, estimate_next_player, depth-1, alpha, beta, 3-next_player)
-        dfs_search_branch
+def min_part(curr_board, prev_board, depth, alpha, beta, next_player):
+    heuristic_value = find_rewards(curr_board, next_player)
+    if depth == 0:
+        return heuristic_value
+    curr_board_copy = copy.deepcopy(curr_board)
+    for moves in find_valid_move(curr_board, prev_board, next_player):
+        next_state_board = next_state_movement(curr_board, moves, next_player)
+        current_value = max_part(next_state_board, curr_board_copy, depth - 1, alpha, beta, next_player)
+
+
+    return heuristic_value
+
+def max_part(curr_board, prev_board, depth, alpha, beta, next_player):
+    heuristic_value = find_rewards(curr_board, next_player)
+    if depth == 0:
+        return heuristic_value
+    curr_board_copy = copy.deepcopy(curr_board)
+    for moves in find_valid_move(curr_board, prev_board, next_player):
+        next_state_board = next_state_movement(curr_board, moves, next_player)
+        current_value = min_part(next_state_board, curr_board_copy, depth - 1, alpha, beta, next_player)
+
+
+    return heuristic_value
+
+
+
         
+        
+    
 
-    return best
-
-print("current_board: ", current_board)
-print(iterate_branches(current_board, prev_board, 12, 2, 1000, 1000, player))
-
-
-print("testing")
+    
