@@ -1,8 +1,6 @@
 import copy
 import os
 
-
-
 input = "input.txt"
 
 def read_input(file):
@@ -121,6 +119,26 @@ def find_valid_move(curr_board, prev_board, player):
     return moves
 
 
+def find_rewards(board, va):
+    our_agent = 0
+    opponent_agent = 0
+    our_agent_potential_reward = 0
+    opponent_agent_potnetial_reward = 0
+    for i in range(5):
+        for j in range(5):
+            if board[i][j] == player:
+                our_agent += 1
+                liberty_count = find_liberty(board, i, j)
+                our_agent_potential_reward = our_agent_potential_reward + our_agent + liberty_count
+            elif board[i][j] == 3 - player:
+                opponent_agent += 1
+                liberty_count = find_liberty(board, i, j)
+                opponent_agent_potnetial_reward = opponent_agent_potnetial_reward + opponent_agent + liberty_count
+    value = our_agent_potential_reward - opponent_agent_potnetial_reward
+    if va == player:
+        return value
+    else:
+        return -1 * value
 
 
 
