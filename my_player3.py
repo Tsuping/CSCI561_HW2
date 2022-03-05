@@ -179,14 +179,20 @@ def min_part(curr_board, prev_board, depth, alpha, beta, next_player):
     for moves in find_valid_move(curr_board, prev_board, next_player):
         next_state_board = next_state_movement(curr_board, moves, next_player)
         current_value = max_part(next_state_board, curr_board_copy, depth - 1, alpha, beta, next_player)
-        if current_value < heuristic_value:
-            heuristic_value = current_value
+        values = -1 * current_value
+        if values > heuristic_value:
+            heuristic_value = values
+        players_turn = -1 * heuristic_value
+
+        if players_turn < alpha:
+            return heuristic_value
+        if heuristic_value > beta:
+            beta = heuristic_value
         
 
     return heuristic_value
 
 def max_part(curr_board, prev_board, depth, alpha, beta, next_player):
-    v = -1000
     heuristic_value = find_rewards(curr_board, next_player)
     if depth == 0:
         return heuristic_value
@@ -194,8 +200,14 @@ def max_part(curr_board, prev_board, depth, alpha, beta, next_player):
     for moves in find_valid_move(curr_board, prev_board, next_player):
         next_state_board = next_state_movement(curr_board, moves, next_player)
         current_value = min_part(next_state_board, curr_board_copy, depth - 1, alpha, beta, next_player)
-        if current_value > heuristic_value:
-            heuristic_value = current_value
+        values = -1 * current_value
+        if values > heuristic_value:
+            heuristic_value = values
+        opponent = -1 * heuristic_value
+        if opponent < beta:
+            return heuristic_value
+        if heuristic_value > alpha:
+            alpha = heuristic_value
 
     return heuristic_value
 
@@ -250,14 +262,6 @@ def minimax(curr_board, prev_board, depth, next_player, alpha, beta, isMax):
 
 player, prev_board, current_board = read_input(input)
 
-# start_time = time.time()
-# print(minimax(current_board, prev_board, 4, player, -1000, 1000, True))
-# print("--- %s seconds ---" % (time.time() - start_time))
-
-# print("\n")
-# start_time = time.time()
-# print(Minmax(current_board, prev_board, 2, -1000, 1000, player))
-# print("--- %s seconds ---" % (time.time() - start_time))
 f2 = open("output.txt", "w+")
 count = 0
 for i in range(5):
@@ -267,8 +271,12 @@ for i in range(5):
 if count == 0 and player == 1:
     moves = [(2,2)]
 else:
-    move = minimax(current_board, prev_board, 4, player, -1000, 1000, True)
-    moves = move[1]
+    if player == 1:
+        move = Minmax(current_board, prev_board, 2, -1000, 1000, player)
+        moves = move
+    if player == 2:
+        move = minimax(current_board, prev_board, 2, player, -1000, 1000, True)
+        moves = move[1]
 
 if moves == []:
 

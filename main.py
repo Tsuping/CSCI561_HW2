@@ -267,7 +267,7 @@ for i in range(5):
 if count == 0 and player == 1:
     moves = [(2,2)]
 else:
-    move = minimax(current_board, prev_board, 4, player, -1000, 1000, True)
+    move = minimax(current_board, prev_board, 2, player, -1000, 1000, True)
     moves = move[1]
 
 if moves == []:
