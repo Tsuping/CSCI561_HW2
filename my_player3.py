@@ -105,24 +105,62 @@ def delete_dead_tiles(board, player):
     new_board = delete_tile(board, check)
     return new_board
 
-def good_move(curr_board, prev_board, player, i, j):
-    if curr_board[i][j] != 0:
-        return False
-    copy_board = copy.deepcopy(curr_board)
-    copy_board[i][j] = player
-    dead_anemy_tile = find_dead_tile(copy_board, find_opponent(player))
-    update_board = delete_dead_tiles(copy_board, find_opponent)
-    if find_liberty(update_board, i, j) >= 1 or (ko_rule(update_board, copy_board) == True and dead_anemy_tile != None):
-        return True
 
-
-def find_valid_move(curr_board, prev_board, player):
-    moves = []
+def find_all_move(curr_board): 
+    list = []
     for i in range(5):
         for j in range(5):
-            if good_move(curr_board, prev_board, player, i, j):
-                moves.append((i, j))
-    return moves
+            if curr_board[i][j] == 0:
+                list.append((i, j))
+    return list
+
+def find_valid_move(curr_board, prev_board, player):
+    moves_list = find_all_move(curr_board)
+
+    legal_move = []
+    for move in moves_list:
+        row = move[0]
+        col = move[1]
+        current_board_copy = copy.deepcopy(curr_board)
+        current_board_copy[row][col] = player
+        next_board_copy = copy.deepcopy(current_board_copy)
+        liberties_check = find_liberty(current_board_copy, row, col)
+        if liberties_check == 0:
+            dead_tile = find_dead_tile(current_board_copy, find_opponent(player))
+            if dead_tile:
+                current_board_copy = delete_dead_tiles(current_board_copy, find_opponent(player))
+            liberties_check = find_liberty(current_board_copy, row, col)
+        if liberties_check >= 1:
+            dead_tile = find_dead_tile(next_board_copy, find_opponent(player))
+            if  dead_tile:
+                next_board_copy = delete_dead_tiles(next_board_copy, find_opponent(player))
+            if dead_tile != None and ko_rule(next_board_copy, prev_board) == True:
+                print("KO violation")
+            else:
+                legal_move.append(move)
+    return legal_move 
+
+
+
+# def good_move(curr_board, prev_board, player, i, j):
+#     if curr_board[i][j] != 0:
+#         return False
+#     copy_board = copy.deepcopy(curr_board)
+#     copy_board[i][j] = player
+#     dead_anemy_tile = find_dead_tile(copy_board, find_opponent(player))
+#     update_board = delete_dead_tiles(copy_board, find_opponent)
+#     if find_liberty(update_board, i, j) >= 1 or not (ko_rule(update_board, prev_board) and dead_anemy_tile != None):
+#         return True
+
+#     return False
+
+# def find_valid_move(curr_board, prev_board, player):
+#     moves = []
+#     for i in range(5):
+#         for j in range(5):
+#             if good_move(curr_board, prev_board, player, i, j):
+#                 moves.append((i, j))
+#     return moves
 
 def next_state_movement(board, position, player):
     new_board = copy.deepcopy(board)
@@ -148,8 +186,8 @@ def find_rewards(board, va):
                     our_agent_potential_reward += komi
             elif board[i][j] == find_opponent(player):
                 opponent_agent += 1
-                liberty_count = find_liberty(board, i, j)
-                opponent_agent_potnetial_reward = opponent_agent_potnetial_reward + opponent_agent + liberty_count
+                liberty_count_oppo = find_liberty(board, i, j)
+                opponent_agent_potnetial_reward = opponent_agent_potnetial_reward + opponent_agent + liberty_count_oppo
                 if find_opponent(player) == 2:
                     opponent_agent_potnetial_reward += komi
     value = our_agent_potential_reward - opponent_agent_potnetial_reward
@@ -215,8 +253,10 @@ for i in range(5):
             count += 1
 if count == 0 and player == 1:
     moves = [(2,2)]
+
+    
 else:
-    if count <= 15:
+    if count < 18:
         move = minimax(current_board, prev_board, 2, player, -1000, 1000, True)
         moves = move[1]
     else:

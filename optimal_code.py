@@ -112,7 +112,7 @@ def good_move(curr_board, prev_board, player, i, j):
     copy_board[i][j] = player
     dead_anemy_tile = find_dead_tile(copy_board, find_opponent(player))
     update_board = delete_dead_tiles(copy_board, find_opponent)
-    if find_liberty(update_board, i, j) >= 1 or (ko_rule(update_board, copy_board) == True and dead_anemy_tile != None):
+    if find_liberty(update_board, i, j) >= 1 or (ko_rule(update_board, copy_board) and dead_anemy_tile != None):
         return True
 
 
@@ -215,8 +215,10 @@ for i in range(5):
             count += 1
 if count == 0 and player == 1:
     moves = [(2,2)]
+
+    
 else:
-    if count <= 15:
+    if count < 18:
         move = minimax(current_board, prev_board, 2, player, -1000, 1000, True)
         moves = move[1]
     else:
