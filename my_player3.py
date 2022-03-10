@@ -196,51 +196,97 @@ def find_rewards(board, va):
     else:
         return -1 * value
 
-        
+def minmax(curr_board, prev_board, depth, alpha, beta, player, isMax):
+    if depth == 0:
+        return find_rewards(curr_board, player), None
+    
+    valid_move = find_valid_move(curr_board, prev_board, player)
+    random.shuffle(valid_move)
+
+    if valid_move == None:
+        current_move = ["PASS"]
+        return 0, current_move
+    
+    current_move = None
+
+    if isMax == True:
+        v = -1000
+        for move in valid_move:
+            
+            current_board_copy = copy.deepcopy(curr_board)
+            next_state_board = next_state_movement(current_board_copy, move,player)
+            score = minmax(next_state_board, curr_board, depth - 1, alpha, beta, find_opponent(player), False)
+            if v < score[0]:
+                v = score[0]
+                alpha = max(v, alpha)
+                current_move = [move]
+            if alpha >= beta:
+                break
+        if current_move == None:
+            return v, None
+        return v, current_move
+
+    else:
+        v = 1000
+        for move in valid_move:
+            current_board_copy = copy.deepcopy(curr_board)
+            next_state_board = next_state_movement(current_board_copy, move, player)
+            score = minmax(next_state_board, curr_board, depth - 1, alpha, beta, find_opponent(player), True)
+            if v > score[0]:
+                v = score[0]
+                beta = min(v, beta)
+                current_move = [move]
+            if alpha >= beta:
+                break
+        if current_move == None:
+            return v, None
+        return v, current_move
+
+    
         
     
-def minimax(curr_board, prev_board, depth, next_player, alpha, beta, isMax):
-    curr_ans = []
-    heur = find_rewards(curr_board, next_player)
-    if depth == 0:
-        return heur, None
+# def minimax(curr_board, prev_board, depth, next_player, alpha, beta, isMax):
+#     curr_ans = []
+#     heur = find_rewards(curr_board, next_player)
+#     if depth == 0:
+#         return heur, None
 
-    if isMax:
-        maxval = float("-inf")
-        current_board_copy = copy.deepcopy(curr_board)
-        all_moves = find_valid_move(curr_board, prev_board, next_player)
-        for moves in all_moves:
-            next_state = next_state_movement(curr_board, moves, next_player)
-            value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), alpha, beta, False)
-            if maxval < value[0] or not curr_ans:
-                maxval = value[0]
-                alpha = max(alpha, maxval)
-                if alpha > beta: 
-                    break
-                curr_ans = [moves]
-            elif maxval == value[0]:
-                curr_ans.append(moves)
-        if curr_ans == None:
-            return maxval, None
-        return maxval, curr_ans
-    else:
-        minval = float('inf')
-        current_board_copy = copy.deepcopy(curr_board)
-        all_moves = find_valid_move(curr_board, prev_board, next_player)
-        for moves in all_moves:
-            next_state = next_state_movement(curr_board, moves, next_player)
-            value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), alpha, beta, True)
-            if minval > value[0] or not curr_ans:
-                minval = value[0]
-                beta = min(beta, minval)
-                if alpha > beta:
-                    break
-                curr_ans = [moves]
-            elif minval == value[0]:
-                curr_ans.append(moves)
-        if curr_ans == None:
-            return minval, None
-        return minval, curr_ans
+#     if isMax:
+#         maxval = float("-inf")
+#         current_board_copy = copy.deepcopy(curr_board)
+#         all_moves = find_valid_move(curr_board, prev_board, next_player)
+#         for moves in all_moves:
+#             next_state = next_state_movement(curr_board, moves, next_player)
+#             value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), alpha, beta, False)
+#             if maxval < value[0] or not curr_ans:
+#                 maxval = value[0]
+#                 alpha = max(alpha, maxval)
+#                 if alpha > beta: 
+#                     break
+#                 curr_ans = [moves]
+#             elif maxval == value[0]:
+#                 curr_ans.append(moves)
+#         if curr_ans == None:
+#             return maxval, None
+#         return maxval, curr_ans
+#     else:
+#         minval = float('inf')
+#         current_board_copy = copy.deepcopy(curr_board)
+#         all_moves = find_valid_move(curr_board, prev_board, next_player)
+#         for moves in all_moves:
+#             next_state = next_state_movement(curr_board, moves, next_player)
+#             value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), alpha, beta, True)
+#             if minval > value[0] or not curr_ans:
+#                 minval = value[0]
+#                 beta = min(beta, minval)
+#                 if alpha > beta:
+#                     break
+#                 curr_ans = [moves]
+#             elif minval == value[0]:
+#                 curr_ans.append(moves)
+#         if curr_ans == None:
+#             return minval, None
+#         return minval, curr_ans
 
 
 player, prev_board, current_board = read_input(input)
@@ -256,14 +302,14 @@ if count == 0 and player == 1:
 
     
 else:
-    if count < 18:
-        move = minimax(current_board, prev_board, 2, player, -1000, 1000, True)
+    if count < 16:
+        move = minmax(current_board, prev_board, 4, -1000, 1000, player, True)
         moves = move[1]
     else:
-        move = minimax(current_board, prev_board, 4, player, -1000, 1000, True)
+        move = minmax(current_board, prev_board, 4, -1000, 1000, player, True)
         moves = move[1]
             
-if moves == []:
+if moves == None:
 
     f2.write("PASS")
 else:
