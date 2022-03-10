@@ -142,56 +142,51 @@ def find_valid_move(curr_board, prev_board, player):
 
 
 
-# def good_move(curr_board, prev_board, player, i, j):
-#     if curr_board[i][j] != 0:
-#         return False
-#     copy_board = copy.deepcopy(curr_board)
-#     copy_board[i][j] = player
-#     dead_anemy_tile = find_dead_tile(copy_board, find_opponent(player))
-#     update_board = delete_dead_tiles(copy_board, find_opponent)
-#     if find_liberty(update_board, i, j) >= 1 or not (ko_rule(update_board, prev_board) and dead_anemy_tile != None):
-#         return True
-
-#     return False
-
-# def find_valid_move(curr_board, prev_board, player):
-#     moves = []
-#     for i in range(5):
-#         for j in range(5):
-#             if good_move(curr_board, prev_board, player, i, j):
-#                 moves.append((i, j))
-#     return moves
-
 def next_state_movement(board, position, player):
     new_board = copy.deepcopy(board)
     new_board[position[0]][position[1]] = player
     new_board = delete_dead_tiles(new_board, find_opponent(player))
     return new_board
 
-def find_rewards(board, va):
+def find_rewards(board, player_type):
     col = 0
     board_size = len(board[col])
     komi = board_size/2
     our_agent = 0
     opponent_agent = 0
+    seen_player = []
+    seen_opponent = []
     our_agent_potential_reward = 0
     opponent_agent_potnetial_reward = 0
     for i in range(5):
         for j in range(5):
             if board[i][j] == player:
                 our_agent += 1
-                liberty_count = find_liberty(board, i, j)
-                our_agent_potential_reward = our_agent_potential_reward + our_agent + liberty_count
-                if player == 2:
-                    our_agent_potential_reward += komi
+                seen_player.append([i, j])
+
             elif board[i][j] == find_opponent(player):
                 opponent_agent += 1
-                liberty_count_oppo = find_liberty(board, i, j)
-                opponent_agent_potnetial_reward = opponent_agent_potnetial_reward + opponent_agent + liberty_count_oppo
-                if find_opponent(player) == 2:
-                    opponent_agent_potnetial_reward += komi
+                seen_opponent.append([i, j])
+    for piece in seen_player:
+        ally_cluster = find_ally_cluster(board, piece[0], piece[1])
+        liberty_count = find_liberty(board, piece[0], piece[1])
+        our_agent_potential_reward += (our_agent + liberty_count)
+        for word in ally_cluster:
+            if word in seen_player:
+                seen_player.pop(word)
+
+    for piece_op in seen_opponent:
+        ally_cluster = find_ally_cluster(board, piece_op[0], piece_op[1])
+        liberty_count = find_liberty(board, piece_op[0], piece_op[1])
+        opponent_agent_potnetial_reward += (opponent_agent + liberty_count)
+        for word in ally_cluster:
+            if word in seen_opponent:
+                seen_opponent.pop(word)
+
     value = our_agent_potential_reward - opponent_agent_potnetial_reward
-    if va == player:
+    if player == 1:
+        value -= komi
+    if player_type == player:
         return value
     else:
         return -1 * value
@@ -242,52 +237,6 @@ def minmax(curr_board, prev_board, depth, alpha, beta, player, isMax):
             return v, None
         return v, current_move
 
-    
-        
-    
-# def minimax(curr_board, prev_board, depth, next_player, alpha, beta, isMax):
-#     curr_ans = []
-#     heur = find_rewards(curr_board, next_player)
-#     if depth == 0:
-#         return heur, None
-
-#     if isMax:
-#         maxval = float("-inf")
-#         current_board_copy = copy.deepcopy(curr_board)
-#         all_moves = find_valid_move(curr_board, prev_board, next_player)
-#         for moves in all_moves:
-#             next_state = next_state_movement(curr_board, moves, next_player)
-#             value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), alpha, beta, False)
-#             if maxval < value[0] or not curr_ans:
-#                 maxval = value[0]
-#                 alpha = max(alpha, maxval)
-#                 if alpha > beta: 
-#                     break
-#                 curr_ans = [moves]
-#             elif maxval == value[0]:
-#                 curr_ans.append(moves)
-#         if curr_ans == None:
-#             return maxval, None
-#         return maxval, curr_ans
-#     else:
-#         minval = float('inf')
-#         current_board_copy = copy.deepcopy(curr_board)
-#         all_moves = find_valid_move(curr_board, prev_board, next_player)
-#         for moves in all_moves:
-#             next_state = next_state_movement(curr_board, moves, next_player)
-#             value = minimax(next_state, current_board_copy, depth - 1, find_opponent(next_player), alpha, beta, True)
-#             if minval > value[0] or not curr_ans:
-#                 minval = value[0]
-#                 beta = min(beta, minval)
-#                 if alpha > beta:
-#                     break
-#                 curr_ans = [moves]
-#             elif minval == value[0]:
-#                 curr_ans.append(moves)
-#         if curr_ans == None:
-#             return minval, None
-#         return minval, curr_ans
-
 
 player, prev_board, current_board = read_input(input)
 
@@ -301,13 +250,8 @@ if count == 0 and player == 1:
     moves = [(2,2)]
 
     
-else:
-    if count < 16:
-        move = minmax(current_board, prev_board, 4, -1000, 1000, player, True)
-        moves = move[1]
-    else:
-        move = minmax(current_board, prev_board, 4, -1000, 1000, player, True)
-        moves = move[1]
+move = minmax(current_board, prev_board, 2, -1000, 1000, player, True)
+moves = move[1]
             
 if moves == None:
 
